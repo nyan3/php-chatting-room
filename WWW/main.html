@@ -1,0 +1,335 @@
+﻿<html>
+
+<body onload="initialization();">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+
+    <div id="showmsg" style="width: 100%;height: 65%;overflow: auto;">
+        <div id='show' onclick='scrolldown();'
+            style="width:60px;height :20px;position:fixed;z-index:1;top: 60%;right:0;font-size:13px;background-color: rgb(0,111,255);color:#FFF;float:right;padding-left:8px;padding-right:8px;border-radius:10%;cursor:pointer;">
+            有新消息↓</div>
+    </div>
+
+
+    <br>
+    <div>
+        <input type="file" name="pictureupload" id="pictureupload" class="inputfile" onchange="upload()" />
+        <label for="pictureupload"></label>
+    </div>
+    <font size=2 color=blue style="float: right;"><a href="dashboard.html">dashboard——>
+        </a></font>
+    <div>
+        <!--<input type="text" id="msg" />-->
+        <textarea id="msg"
+            style="border:0;border-radius:5px;background-color:rgba(182, 179, 179, 0.98);width: 355px;height: 100px;padding: 10px;resize: none;"
+            placeholder="say something "></textarea>
+    </div>
+    <audio id="alert" src=""></audio>
+    <br>
+    <div><input type="button" value="send" id="btn" /></div>
+    <script type="text/javascript">
+        var out = document.getElementById("showmsg");
+        var status = 0;
+        var doscroll = 0;
+        var ishidden=0;
+        $(document).ready(function (e) {
+            $("#btn").click(function () {//run this function after press the button
+                //get msg's value 
+                var message = $("#msg").val();
+                $("#msg").val("");
+                if (message.trim() == "") { return; }
+                scrolldown();
+                //get cookie
+                var uid = $.cookie('loginkey');
+                var usr = $.cookie('loginname');
+                //use ajax
+                $.ajax({
+                    url: "sendmsg.php",
+                    data: { message/*for php*/: message/*for js*/, uid: uid, usr: usr },
+                    type: "POST",
+                    dataType: "TEXT",
+                    success: function (data) {
+                        if (data.trim() == "OK") {
+                            //send successful
+                        }
+                        else {
+                            alert(data.trim());
+                            //send failed
+                        }
+
+                    }
+
+                });
+
+            })
+        });
+
+        function loadmsg() {
+                var isScrolledToBottom = out.scrollHeight - out.clientHeight <= out.scrollTop + 1;
+                if (isScrolledToBottom) {
+                    doscroll = 1;
+                }
+                else {
+                    doscroll = 2;
+                }
+            if (status == 0) {
+                doscroll = 1;
+            }
+            if(ishidden==1){
+             doscroll=2;
+            }
+            // var uid = $.cookie('loginkey');
+            var usrname = $.cookie('loginname');
+            $.ajax({
+                url: "loadmsg.php",
+                data: { status: status, usrname: usrname },
+                type: "POST",
+                async: false,
+                dataType: "TEXT",
+                success: function (data) {
+                    if (data.trim() == "") {
+                        //received nothing
+                    }
+                    else {
+                        //alert(data.trim());
+
+                        var datas = data.trim();
+                        var recvmsg = datas.split("|")[1];
+                        var Add = document.getElementById("showmsg");
+                        Add.innerHTML += recvmsg;
+                        status = datas.split("|")[0];
+
+                        if (recvmsg == '') { doscroll = 0; }
+                        if (doscroll == 1) {
+                            scrolldown();
+                            document.getElementById("show").style.display = "none";
+                            doscroll = 0;
+                        }
+                        else if (doscroll == 2) {
+                            playMusic('sound/alert.wav');
+                            doscroll = 0;
+                            document.getElementById("show").style.display = "block";
+                            //playsound
+                        }
+                        //loaded
+                    }
+                }
+            });
+            //}
+        }
+        function initialization() {
+            document.getElementById("show").style.display = "none";
+            setInterval("loadmsg()", 1000);
+        }
+
+        document.onkeydown = function (event) {
+            var code = event.keyCode;
+            if (code == 13) {
+                document.getElementById("tokeInOutList").focus();
+            }
+            $('#msg').on("keydown", function (event) {
+                var keyCode = event.keyCode || event.which;
+                if (keyCode == "13") {
+                    event.preventDefault();
+                    $("#btn").click();
+                }
+            });
+        }
+
+        function upload() {
+
+            var forms = new FormData(); console.log(forms);
+            forms.append("myfile", document.getElementById("pictureupload").files[0]);
+            console.log(forms);
+            $.ajax({
+                url: "upload.php",
+                type: "POST",
+                data: forms,
+                cache: false,
+                contentType: false,//不可缺参数
+                processData: false,//不可缺参数 
+                success: function (result) {
+                    console.log(result);
+                },
+                error: function (result) {
+                    alert("上传失败");
+                }
+            });
+        }
+        function playMusic(path) {
+            var audioEle = document.getElementById("alert");
+            audioEle.src = path;
+            audioEle.load();
+            if (audioEle.paused) { /*如果已经暂停*/
+                audioEle.play();   //播放
+            } else {
+                audioEle.pause();  //暂停
+            }
+        }
+
+        function scrolldown() {
+            out.scrollTop = out.scrollHeight - out.clientHeight;
+            document.getElementById("show").style.display = "none";
+        }
+
+        document.addEventListener('visibilitychange', function () {
+                let pageVisibility = document.visibilityState
+                // 页面变为不可见时触发 
+                if (pageVisibility == 'hidden') {
+                    //alert('');
+                    ishidden=1;
+                }
+                // 页面变为可见时触发 
+                if (pageVisibility == 'visible') {
+                    ishidden=0;
+                }
+            })
+    </script>
+
+</body>
+
+<style>
+    input[type=text]:focus,
+    input[type=password]:focus,
+    textarea:focus {
+        transition: border linear .2s, box-shadow linear .5s;
+        -moz-transition: border linear .2s, -moz-box-shadow linear .5s;
+        -webkit-transition: border linear .2s, -webkit-box-shadow linear .5s;
+        outline: none;
+        border-color: rgba(0, 47, 167, .75);
+        box-shadow: 0 0 10px rgba(0, 47, 167, .105);
+        -moz-box-shadow: 0 0 10px rgba(0, 47, 167, .5);
+        -webkit-box-shadow: 0 0 10px rgba(0, 47, 167, 3);
+    }
+
+    input[type=text]:focus {
+        border-radius: 5px;
+    }
+
+    input[type=text] {
+        width: 70%
+    }
+
+    /*
+        input[type=button] {
+            background-color: #5f2991;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 15px;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+*/
+    button:hover {
+        box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
+    }
+
+    /*chatbox*/
+    #item {
+        position: relative;
+        width: 150px;
+        min-height: 30px;
+        background: #256aa2;
+        border-radius: 5px;
+        /*line-height: 50px;*/
+        margin-left: 10px;
+        word-break: break-word;
+        color: white;
+        padding: 5px;
+        line-height: 18px;
+    }
+
+    #item::after {
+        content: "";
+        display: block;
+        position: absolute;
+        width: 0;
+        height: 0;
+        border: 8px solid transparent;
+        border-right-color: #256aa2;
+        top: 7px;
+        left: -14px;
+    }
+
+    #mymsg {
+        position: relative;
+        width: 150px;
+        min-height: 30px;
+        background: #25a23b;
+      
+        border-radius: 5px;
+        /*line-height: 50px;*/
+        margin-left: 10px;
+        word-break: break-word;
+        color: white;
+        padding: 5px;
+        line-height: 18px;
+        left:78%;
+    }
+
+    #mymsg::after {
+        content: "";
+        display: block;
+        position: absolute;
+        width: 0;
+        height: 0;
+        border: 8px solid transparent;
+        border-left-color:#25a23b; 
+        top: 7px;
+        right: -14px;
+    }
+
+    /*picture box*/
+    .inputfile {
+        width: 0.1px;
+        height: 0.1px;
+        opacity: 0;
+        overflow: hidden;
+        position: absolute;
+        z-index: -1;
+    }
+
+    #btn {
+        /*hide button*/
+        width: 0.1px;
+        height: 0.1px;
+        opacity: 0;
+        overflow: hidden;
+        position: absolute;
+        z-index: -1;
+    }
+
+    #alert {
+        width: 0.1px;
+        height: 0.1px;
+        opacity: 0;
+        overflow: hidden;
+        position: absolute;
+        z-index: -1;
+    }
+
+    .inputfile+label {
+        width: 23px;
+        height: 22px;
+        /*font-size: 1.25em;
+    font-weight: 700;
+    color: rgb(252, 250, 251);
+    background-color: rgb(245, 50, 60);*/
+        display: inline-block;
+        border-radius: 5px;
+        cursor: pointer;
+        padding: 5px;
+        background: url(img/uploadpicture.jpg) no-repeat;
+        background-size: 23px 22px;
+    }
+    img{
+        max-width:140px;
+        max-height:140px;
+    }
+</style>
+
+</html>

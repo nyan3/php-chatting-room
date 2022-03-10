@@ -1,0 +1,74 @@
+<html>
+
+<head>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+    <script>
+      function a(){
+           var content = $("#advice").val();
+                    $("#advice").val("");
+                    useajax('advice', content);
+      }
+                   
+                    //do something
+         function b(){
+            var content = $("#chpsswd").val();
+                    $("#chpsswd").val("");
+                    useajax('chpsswd', content);
+         }          
+       function c(){
+              var content = $("#chname").val();
+                    $("#chname").val("");
+                    useajax('chname', content);
+       }
+function d(){
+$.cookie("loginname", "", {expires: -1});
+$.cookie("loginkey", "", {expires: -1});
+location.href='login.html';
+}
+           
+    
+        function useajax(todo, msg) {
+            var set_name = $.cookie('loginname');
+            var set_password = $.cookie('loginkey');
+            $.ajax({
+                url: "dashboard.php",
+                data: { set_name: set_name, set_password: set_password, todo: todo, msg: msg },
+                type: "POST",
+                dataType: "TEXT",
+                success: function (data) {
+                    alert(data.trim());
+                    //send failed
+
+
+                }
+
+            });
+
+        }
+    </script>
+    <title>Welcome to the dashboard</title>
+</head>
+<p>Hello~</p>
+<div>change your password:<br><input type="password" id="chpsswd"><button onclick="b();">send</button></div>
+<div>change your name(need to sign in again):<br><input type="text" id="chname"><button onclick="c();">send</button></div><br>
+<div>give us some advice:<br>
+    <textarea id="advice" placeholder="say something"></textarea><br><button onclick="a();">send</button>
+    
+<font size=2 color=blue style="float: right;"><a href="main.html">back to chatroom</a></font>
+<br><br>
+<button onclick='d();'><font color='red'>logout</font></button>
+</body>
+    <style>
+        textarea {
+            border: 0;
+            border-radius: 5px;
+            background-color: rgba(182, 179, 179, 0.98);
+            width: 355px;
+            height: 100px;
+            padding: 10px;
+            resize: none;
+        }
+    </style>
+
+</html>

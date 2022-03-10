@@ -1,0 +1,88 @@
+<title>signup</title>
+<html>
+
+<body>
+    <script>
+        function checkform(pwd, pwdcheck) {
+            if (pwd.value == pwdcheck.value) {
+                document.getElementById("signform").submit();
+            }
+            else {
+                document.getElementById('warning').innerHTML = '<font color="red" size=2>first password do not match the second one</font>';
+            }
+        }
+    </script>
+    <br>
+    <div id="warning">
+    </div>
+    <br>
+    <form style="border:none;" action="signup.php" method="post" id="signform">
+        your name:
+        <br>
+        <input name="set_name" type="text" placeholder="your name">
+        <br>
+        <br>
+        <br>
+        your password:
+        <br>
+        <input name="set_password" type="password">
+        <br>
+        <br>
+        <br>
+        your password again:
+        <br>
+        <input name="check_password">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+    </form>
+    <button type="button" name="sendform"
+        onclick="checkform(signform.set_password,signform.check_password);">signup</button>
+    </center>
+    <right>
+        <font size=2 color=blue style="float: right;">
+            <a href="login.html">already have an account?click me to log in </a>
+        </font>
+    </right>
+    <style>
+        input[type=text]:focus,
+        input[type=password]:focus,
+        textarea:focus {
+            transition: border linear .2s, box-shadow linear .5s;
+            -moz-transition: border linear .2s, -moz-box-shadow linear .5s;
+            -webkit-transition: border linear .2s, -webkit-box-shadow linear .5s;
+            outline: none;
+            border-color: rgba(0, 47, 167, .75);
+            box-shadow: 0 0 10px rgba(0, 47, 167, .105);
+            -moz-box-shadow: 0 0 10px rgba(0, 47, 167, .5);
+            -webkit-box-shadow: 0 0 10px rgba(0, 47, 167, 3);
+        }
+
+        input {
+            border-radius: 5px;
+            width: 40%;
+            height: 8%;
+        }
+
+        button {
+            background-color: #008CBA;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 15px;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
+        }
+    </style>
+</body>
+
+</html>
